@@ -61,7 +61,7 @@ void EditShaderDialog::parseSettings( const QVector< Shader >& settingShaders, c
 
 
 		if( !mSettingShaders.at(i).enabled )
-			item->setTextColor( Qt::darkGray );
+            item->setForeground( Qt::darkGray );
 
 
 		/*if( gShaders.contains( mSettingShaders.at(i).name ))
@@ -369,17 +369,17 @@ void EditShaderDialog::toggleShader()
 	if( ui->listWidget_shader->selectedItems().count() == 0 )
 		return;
 
-	if( ui->listWidget_shader->currentItem()->textColor() == Qt::darkGray )
-		ui->listWidget_shader->currentItem()->setTextColor( Qt::white );
+    if( ui->listWidget_shader->currentItem()->foreground() == Qt::darkGray )
+        ui->listWidget_shader->currentItem()->setForeground( Qt::white );
 	else
-		ui->listWidget_shader->currentItem()->setTextColor( Qt::darkGray );
+        ui->listWidget_shader->currentItem()->setForeground( Qt::darkGray );
 
 
 	for( int i = 0; i < mChangedShaders.count(); ++i )
 	{
 		if( mChangedShaders.at(i).name == ui->listWidget_shader->currentItem()->text() )
 		{
-			mChangedShaders[i].enabled = ui->listWidget_shader->currentItem()->textColor() == Qt::black;
+            mChangedShaders[i].enabled = ui->listWidget_shader->currentItem()->foreground() == Qt::black;
 		}
 	}
 }
@@ -592,7 +592,7 @@ void EditShaderDialog::updateFilters()
 			item->setText( mChangedShaders.at(i).name );
 
 			if( !mChangedShaders.at(i).enabled )
-				item->setTextColor( Qt::darkGray );
+                item->setForeground( Qt::darkGray );
 
 			ui->listWidget_shader->addItem( item );
 		}

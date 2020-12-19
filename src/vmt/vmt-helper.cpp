@@ -165,7 +165,7 @@ ColorResult parseColor(const QString &parameter,
 	result.valid = true;
 
 	QString p = QString(value).remove("{").remove("}");
-	QStringList parts = p.trimmed().split(" ", QString::SkipEmptyParts);
+    QStringList parts = p.trimmed().split(" ", Qt::SkipEmptyParts);
 
 	foreach (const QString& s, parts) {
 		bool ok;
@@ -288,7 +288,7 @@ DoubleTuple toDoubleTuple(const QString &s, int amount)
 		QString copy = QString(s);
 		QString p = copy.remove("[").remove("]");
 		QStringList parts = p.trimmed().split(" ",
-			QString::SkipEmptyParts);
+            Qt::SkipEmptyParts);
 
 		foreach (const QString &s, parts) {
 			bool ok;

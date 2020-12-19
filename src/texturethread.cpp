@@ -11,7 +11,10 @@ void TextureThread::run()
     QDir().mkdir("Cache");
 
 	QProcess process;
-	process.start(input + " -version 7.4");
+    QStringList localInput = input;
+    localInput.append("-version");
+    localInput.append("7.4");
+    process.start("vtfcmd.exe", localInput);
 
 	process.waitForFinished();
 

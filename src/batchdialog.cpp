@@ -280,7 +280,7 @@ void BatchDialog::batchRequested() {
 	//QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QList<QString> listEntries( listEntriesWithDirectories.keys() );
-		qSort(listEntries);
+    std::sort(listEntries.begin(), listEntries.end());
 
 	QStringList output;
 
@@ -288,7 +288,7 @@ void BatchDialog::batchRequested() {
 
 	for( int i = 0; i < output.count(); ++i ) {
 
-		QStringList singleEntries( output.at(i).split( '|', QString::SkipEmptyParts ));
+        QStringList singleEntries( output.at(i).split( '|', Qt::SkipEmptyParts ));
 		QString firstEntry( singleEntries.first() );
 		bool isBaseTexture = false;
 

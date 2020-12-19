@@ -468,18 +468,16 @@
 
 		QMap<QString, QString>::iterator it = arguments.begin();
 
-		QString argumentString("vtfcmd.exe");
+        QStringList argumentStringList;
 
 		while(it != arguments.end()) {
 
-			if(it.value() == "") {
-
-				argumentString.append(" " + it.key());
-
-			} else {
-
-				argumentString.append(" " + it.key() + " " + it.value());
-			}
+            if(it.value() == "")
+                argumentStringList.append(it.key());
+            else {
+                argumentStringList.append(it.key());
+                argumentStringList.append(it.value());
+            }
 
 			++it;
 		}
@@ -595,10 +593,14 @@
 				}
 			}
 
-			QString processString(argumentString + " -file \"" + filePath.replace("/", "\\") + "\"" + " -output \"" + outputPath.replace("/", "\\") + "\" ");
+            QStringList processArgumentList = argumentStringList;
+            processArgumentList.append("-file");
+            processArgumentList.append(filePath.replace("/", "\\"));
+            processArgumentList.append("-output");
+            processArgumentList.append(outputPath.replace("/", "\\"));
 
 			QProcess process;
-				process.start(processString);
+                process.start("vtfcmd.exe", processArgumentList);
 				process.waitForFinished(120000);
 
 			QString output = process.readAllStandardOutput().simplified();
@@ -688,7 +690,7 @@
 
 						QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-						argumentString.append(" -resize");
+                        argumentStringList.append("-resize");
 
 						goto anotherTry;
 				}

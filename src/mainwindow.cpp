@@ -40,7 +40,6 @@
 
 #ifdef Q_OS_WIN
 #   include <Windows.h>
-#	pragma comment(lib,"user32.lib")
 #endif
 
 // Used for Parameter- and Valuelineedits as they need to modify the layout often
@@ -489,7 +488,7 @@ MainWindow::MainWindow(QString fileToOpen, QWidget* parent) :
 		font.setPointSize(9);
 
 	QFontMetrics metrics(font);
-	ui->vmtPreviewTextEdit->setTabStopWidth(4 * metrics.width(' '));
+	ui->vmtPreviewTextEdit->setTabStopDistance(4.0f * metrics.horizontalAdvance(' '));
 
 	//----------------------------------------------------------------------------------------//
 
@@ -998,7 +997,7 @@ void MainWindow::parseVMT( VmtFile vmt, bool isTemplate )
 	}
 
 	if(isTemplate) {
-		realGameinfoDir = currentGameMaterialDir().section("/", 0, -2);
+        realGameinfoDir.setPath(currentGameMaterialDir().section("/", 0, -2));
 	}
 
 	//----------------------------------------------------------------------------------------//
@@ -1057,25 +1056,21 @@ void MainWindow::parseVMT( VmtFile vmt, bool isTemplate )
 	//----------------------------------------------------------------------------------------//
 
 	QString value;
-	if( !( value = vmt.parameters.take("$basetexture") ).isEmpty() )
-	{
+    if( !( value = vmt.parameters.take("$basetexture") ).isEmpty() )
+    {
 		QString texture = validateTexture( "preview_basetexture1", value, "$basetexture", realGameinfoDir );
 
-		if( vmt.shaderName == "Water" ) {
-
+        if( vmt.shaderName == "Water" ) {
 			Error("$basetexture does not work with the Water shader!")
 
 			if( !texture.isEmpty() )
 				ui->lineEdit_diffuse->setText(texture);
-
 		} else if (vmt.shaderName == "UnlitTwoTexture") {
-
-			if( !texture.isEmpty() )
+            if( !texture.isEmpty() ) {
 				ui->lineEdit_unlitTwoTextureDiffuse->setText(texture);
 				createReconvertAction(ui->lineEdit_unlitTwoTextureDiffuse, value);
-
+            }
 		} else {
-
 			if( !texture.isEmpty() )
 				ui->lineEdit_diffuse->setText(texture);
 
@@ -1114,9 +1109,10 @@ void MainWindow::parseVMT( VmtFile vmt, bool isTemplate )
 
 		QString texture = validateTexture( "preview_basetexture2", value, "$texture2", realGameinfoDir );
 
-		if( !texture.isEmpty() )
+        if( !texture.isEmpty() ) {
 			ui->lineEdit_unlitTwoTextureDiffuse2->setText(texture);
 			createReconvertAction(ui->lineEdit_unlitTwoTextureDiffuse2, value);
+        }
 	}
 
 	//----------------------------------------------------------------------------------------//
@@ -1146,9 +1142,10 @@ void MainWindow::parseVMT( VmtFile vmt, bool isTemplate )
 		if( vmt.shaderName.compare("Lightmapped_4WayBlend", Qt::CaseInsensitive) ) \
 			Error("$basetexture3 only works with the Lightmapped_4WayBlend CS:GO shader!") \
 
-		if( !texture.isEmpty() )
+        if( !texture.isEmpty() ) {
 			ui->lineEdit_diffuse3->setText(texture);
 			createReconvertAction(ui->lineEdit_diffuse3, value);
+        }
 	}
 
 	if( !( value = vmt.parameters.take("$basetexture4") ).isEmpty() ) {
@@ -1158,9 +1155,10 @@ void MainWindow::parseVMT( VmtFile vmt, bool isTemplate )
 		if( vmt.shaderName.compare("Lightmapped_4WayBlend", Qt::CaseInsensitive) ) \
 			Error("$basetexture4 only works with the Lightmapped_4WayBlend CS:GO shader!") \
 
-		if( !texture.isEmpty() )
+        if( !texture.isEmpty() ) {
 			ui->lineEdit_diffuse4->setText(texture);
 			createReconvertAction(ui->lineEdit_diffuse4, value);
+        }
 	}
 
 	if( !( value = vmt.parameters.take("$texture2_uvscale") ).isEmpty() ) {
@@ -1295,11 +1293,11 @@ void MainWindow::parseVMT( VmtFile vmt, bool isTemplate )
 
 			if( alpha == 1.0 )
 				Info("$alpha has value \"1.0\" which is the default!")
-			else
+            else {
 				ui->doubleSpinBox_opacity->setValue( alpha );
 
 				opacityChanged(alpha);
-
+            }
 		}
 		else
 			Error("$alpha value \"" + Str(alpha) + "\" has caused an error while parsing!")
@@ -5107,6 +5105,7 @@ void MainWindow::action_New() {
 				if( !mChildWidgetChanged)
 					break;
 
+            // fallthrough
 			case QMessageBox::Cancel:
 			case QMessageBox::Escape:
 
@@ -5958,6 +5957,7 @@ void MainWindow::loadScrollParameter( QString value, const QString& command, uin
 				if( !ok || tmp3 < -1.0f || tmp3 > 1.0f )
 					goto error;
 
+            // fallthrough
 			case 2:
 
 				tmp1 = values.at(0).toFloat(&ok);
@@ -6544,8 +6544,8 @@ bool MainWindow::previewTexture( const QString& object, const QString& texture, 
 			QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
 
 			textureThread->vtfFile = QFileInfo(texturePath + ".png").fileName();
-			textureThread->input = "vtfcmd.exe -file \"" + texturePath.replace("/", "\\") + ".vtf\" -output \"" +
-					QDir::currentPath().replace("/", "\\") + "\\Cache\" " + "-exportformat \"png\"";
+			textureThread->input = QStringList({"-file", texturePath.replace("/", "\\") + ".vtf", "-output",
+                    QDir::currentPath().replace("/", "\\") + "\\Cache", "-exportformat", "png"});
 
 			textureThread->start();
 		}
@@ -6630,8 +6630,8 @@ bool MainWindow::previewTexture( const int type, const QString& texture ) {
 			QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
 
 			textureThread->vtfFile = QFileInfo(texturePath + ".png").fileName();
-			textureThread->input = "vtfcmd.exe -file \"" + texturePath.replace("/", "\\") + ".vtf\" -output \"" +
-					QDir::currentPath().replace("/", "\\") + "\\Cache\" " + "-exportformat \"png\"";
+            textureThread->input = QStringList({"-file", texturePath.replace("/", "\\") + ".vtf", "-output",
+                    QDir::currentPath().replace("/", "\\") + "\\Cache", "-exportformat", "png"});
 
 			textureThread->start();
 		}
@@ -7399,7 +7399,8 @@ void MainWindow::shaderChanged()
     if (mSettings->autoRefresh)
         refreshRequested();
 
-	if (!wasLoading) mLoading = false;
+    if (!wasLoading)
+        mLoading = false;
 }
 
 #define TRIGGER_IF(x) if (!x->isChecked() && x->isEnabled()) x->trigger(); break;
@@ -7703,11 +7704,11 @@ void MainWindow::readSettings()
 	defaultShaderFile.close();
 
 
-	QStringList shaderList( mIniSettings->value("shaders").toString().split( "??", QString::SkipEmptyParts ));
+    QStringList shaderList( mIniSettings->value("shaders").toString().split( "??", Qt::SkipEmptyParts ));
 
 	for( int i = 0; i < shaderList.count(); ++i )
 	{
-		QStringList shaderParameterList( shaderList.at(i).split( "?", QString::SkipEmptyParts ));
+        QStringList shaderParameterList( shaderList.at(i).split( "?", Qt::SkipEmptyParts ));
 
 		switch( shaderParameterList.count() )
 		{
@@ -8649,7 +8650,7 @@ void MainWindow::loadExternalVmt()
 	if( tmp.exists() ) {
 
 		QProcess* process = new QProcess();
-		process->start( "\"" + QCoreApplication::applicationFilePath() + "\" \"" + currentGameMaterialDir() + "/" + ui->lineEdit_bottomMaterial->text() + ".vmt\"" );
+        process->start( QCoreApplication::applicationFilePath(), QStringList({ currentGameMaterialDir() + "/" + ui->lineEdit_bottomMaterial->text() + ".vmt"}) );
 	}
 }
 
@@ -8747,7 +8748,7 @@ void MainWindow::changeColor(QToolButton* colorField , TintSlider *slider) {
 	if( bytes.isEmpty() )
 		bytes = "16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215";
 
-	QStringList values = bytes.split(';', QString::SkipEmptyParts);
+    QStringList values = bytes.split(';', Qt::SkipEmptyParts);
 
 	COLORREF acrCustClr[16];
 
@@ -8816,7 +8817,7 @@ void MainWindow::changeColor(QToolButton* colorField)
 	if( bytes.isEmpty() )
 		bytes = "16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215;16777215";
 
-	QStringList values = bytes.split(';', QString::SkipEmptyParts);
+    QStringList values = bytes.split(';', Qt::SkipEmptyParts);
 
 	COLORREF acrCustClr[16];
 
@@ -9055,9 +9056,10 @@ void MainWindow::modifiedLineEdit( QString text )
 				ui->lineEdit_specmap->setEnabled(true);
 				ui->lineEdit_specmap2->setEnabled(true);
 
-				if( getCurrentGame() != "" )
+                if( getCurrentGame() != "" ) {
 					ui->toolButton_specmap->setEnabled(true);
 					ui->toolButton_specmap2->setEnabled(true);
+                }
 
 				ui->checkBox_basealpha->setDisabled(true);
 				ui->checkBox_normalalpha->setDisabled(true);
@@ -9096,9 +9098,10 @@ void MainWindow::modifiedLineEdit( QString text )
 				ui->lineEdit_specmap->setEnabled(true);
 				ui->lineEdit_specmap2->setEnabled(true);
 
-				if( getCurrentGame() != "" )
+                if( getCurrentGame() != "" ) {
 					ui->toolButton_specmap->setEnabled(true);
 					ui->toolButton_specmap2->setEnabled(true);
+                }
 
 				ui->checkBox_basealpha->setEnabled(true);
 				ui->checkBox_normalalpha->setEnabled(true);
@@ -9189,9 +9192,10 @@ void MainWindow::modifiedCheckBox( bool enabled )
 				ui->lineEdit_specmap->setEnabled(true);
 				ui->lineEdit_specmap2->setEnabled(true);
 
-				if( getCurrentGame() != "" )
+                if( getCurrentGame() != "" ) {
 					ui->toolButton_specmap->setEnabled(true);
 					ui->toolButton_specmap2->setEnabled(true);
+                }
 
 				ui->checkBox_basealpha->setDisabled(true);
 				ui->checkBox_normalalpha->setDisabled(true);
@@ -9232,9 +9236,10 @@ void MainWindow::modifiedCheckBox( bool enabled )
 				ui->label_specmap->setEnabled(true);
 				ui->label_specmap2->setEnabled(true);
 
-				if( getCurrentGame() != "" )
+                if( getCurrentGame() != "" ) {
 					ui->toolButton_specmap->setEnabled(true);
 					ui->toolButton_specmap2->setEnabled(true);
+                }
 
 				ui->checkBox_basealpha->setEnabled(true);
 				ui->checkBox_normalalpha->setEnabled(true);
@@ -10575,10 +10580,11 @@ void MainWindow::refreshInGame() {
 								  + vmtParser->lastVMTFile().fileName)
 				.section(".", 0, -2);
 
-	QString arg = "\"" + exe + "\" -hijack +mat_reloadmaterial \"" + relativeFilePath + "\"";
-	qDebug() << arg;
+    QStringList args = QStringList({ "-hijack", "+mat_reloadmaterial", relativeFilePath });
+    qDebug() << exe;
+    qDebug() << args;
 
-	process.startDetached(arg);
+    process.startDetached(exe, args);
 	Info("Reloading material \"" + relativeFilePath + "\"");
 
 }

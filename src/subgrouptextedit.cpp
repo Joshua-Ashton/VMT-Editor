@@ -82,7 +82,7 @@ SubGroupTextEdit::SubGroupTextEdit(QWidget* parent) :
 	font.setStyleHint(QFont::Monospace);
 	font.setPointSize(9);
 	QFontMetrics metrics(font);
-	setTabStopWidth(4 * metrics.width(' '));
+    setTabStopDistance(4.0f * metrics.horizontalAdvance(' '));
 }
 
 int SubGroupTextEdit::lineNumberAreaWidth()
@@ -93,7 +93,7 @@ int SubGroupTextEdit::lineNumberAreaWidth()
 		max /= 10;
 		++digits;
 	}
-	int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
+    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 	return qMax(26, space + 8);
 }
 

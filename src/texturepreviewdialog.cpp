@@ -1,5 +1,7 @@
 #include "texturepreviewdialog.h"
 
+#include <QScreen>
+
 TexturePreviewDialog::TexturePreviewDialog(
 		const QString& file, QWidget* parent) :
 	QDialog(parent),
@@ -52,7 +54,8 @@ void TexturePreviewDialog::setup(const QImage& image)
 
 	int w = size.width();
 	int h = size.height();
-	const QRect monitor = QApplication::desktop()->screenGeometry();
+    // TODO(Josh): uhhhh wtf!
+    const QRect monitor = QGuiApplication::primaryScreen()->availableGeometry();
 	if ((w + 16) > monitor.width()) {
 		w = monitor.width() - 16;
 		ui->texture->setDragMode(QGraphicsView::ScrollHandDrag);

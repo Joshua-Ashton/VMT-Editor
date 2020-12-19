@@ -23,7 +23,7 @@ public:
 
 	//----------------------------------------------------------------------------------------//
 
-	QString input;
+    QStringList input;
 	QString output;
 
 	QString vtfFile;

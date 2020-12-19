@@ -84,7 +84,7 @@ void GLWidget_Spec::updateValues(Mode mode, const QString &filePath)
 	delete texture;
 
 	if (mode == Bumpmap) {
-		QImage alpha = image.alphaChannel();
+        QImage alpha = image.convertToFormat(QImage::Format_Alpha8);
 		QColor pixel, pix;
 
 		for (int i = 0; i < alpha.width(); ++i) {
@@ -102,7 +102,7 @@ void GLWidget_Spec::updateValues(Mode mode, const QString &filePath)
 	}
 
 	if (mode == Diffuse) {
-		QImage alpha = image.alphaChannel();
+        QImage alpha = image.convertToFormat(QImage::Format_Alpha8);
 		QColor pixel, pix;
 
 		for (int i = 0; i < alpha.width(); ++i) {
